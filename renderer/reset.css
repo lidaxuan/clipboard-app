@@ -1,0 +1,85 @@
+/*
+ * @Author: web.范庆龙
+ * @Date: 2020-04-26 10:40:48
+ * @LastEditors: web.范庆龙
+ * @LastEditTime: 2020-04-26 10:45:43
+ * @Description: file content
+ */
+/*初始化 S*/
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video, input {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-weight: normal;
+    vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, menu, nav, section {
+    display: block;
+}
+input:focus{outline:none;}
+body {
+    line-height: 1;
+}
+
+blockquote, q {
+    quotes: none;
+}
+
+
+a {
+    color: #7e8c8d;
+    text-decoration: none;
+    -webkit-backface-visibility: hidden;
+    cursor: pointer;
+}
+i{
+    font-style: normal;
+}
+li {
+    list-style: none;
+}
+
+html, body {
+    /*width: 100%;*/
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    -webkit-text-size-adjust: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+/*初始化 D*/
+/*项目公共*/
+
+#app {
+    font-family: Microsoft YaHei;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #2c3e50;
+    font-size: 14px;
+    background: #eff1f4;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+}
+* {
+    box-sizing: border-box;
+}

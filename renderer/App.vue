@@ -90,7 +90,6 @@ const formatText = (text) => {
 .app-container {
   font-family: 'Segoe UI', Roboto, sans-serif;
   width: 100%;
-  height: 600px;
   display: flex;
   flex-direction: column;
   background-color: #f5f5f7;

@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:vite": "vite build",
-    "build": "npm run build:vite && electron-builder",
+    "build": "npm run remove && npm run build:vite && electron-builder",
+    "build:dmg": "npm run remove && npm run build:vite && electron-builder",
+    "build:exe": "npm run remove && npm run build:vite && electron-builder --win --x64 --rcedit=false",
+    "remove": "rm -rf dist dist_electron",
     "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
     "dev:vite": "vite",
     "dev:electron": "NODE_ENV=development electron ."
@@ -30,17 +33,20 @@
     },
     "win": {
       "icon": "icon.ico",
-      "target": [
-        "nsis",
-        "zip"
-      ]
+      "target": ["nsis", "zip"],
+      "rcedit": false
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
-    }
+    },
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/electron-store/**",
+      "node_modules/conf/**",
+      "node_modules/dot-prop/**"
+    ]
   },
-
   "keywords": [],
   "type": "module",
   "author": "",
@@ -55,7 +61,7 @@
     "wait-on": "^9.0.0"
   },
   "dependencies": {
-    "electron-store": "^10.1.0",
+    "electron-store": "^8.2.0",
     "vue": "^3.5.21"
   }
 }

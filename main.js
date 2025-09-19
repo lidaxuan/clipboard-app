@@ -1,20 +1,17 @@
-// main.cjs
-const {app, BrowserWindow, clipboard, ipcMain, Tray, Menu, globalShortcut} = require('electron')
-const path = require('path')
-const Store = require('electron-store');
-const store = new Store();
 
-
+import { app, BrowserWindow, clipboard, ipcMain, Tray, Menu, globalShortcut } from 'electron';
+import path from 'path';
+import Store from 'electron-store'
+let store = new Store()
 // let Store, store
 let win
 let tray
 let lastClipboardText = ''
-let lastPastedText = ''
-
-;(async () => {
+let lastPastedText = '';
+(async () => {
   // const mod = await import('electron-store')
   // Store = mod.default
-  // store = new Store()
+
 
   // 创建窗口
   function createWindow() {
@@ -36,12 +33,12 @@ let lastPastedText = ''
     // 记住窗口大小和位置
     win.on('resize', saveWindowBounds)
     win.on('move', saveWindowBounds)
-    // win.once('ready-to-show', () => win.show())
+    win.once('ready-to-show', () => win.show())
 
     // 关闭时隐藏窗口
     win.on('close', (e) => {
-      // e.preventDefault()
-      app.quit()
+      e.preventDefault()
+      win.hide()
     })
 
     if (process.env.NODE_ENV === 'development') {
@@ -126,7 +123,7 @@ let lastPastedText = ''
     })
 
     // 全局快捷键
-    globalShortcut.register('CommandOrControl+Shift+Alt+V', () => {
+    globalShortcut.register('CommandOrControl+Shift+V', () => {
       if (win.isVisible()) win.hide()
       else {
         win.show()
@@ -157,22 +154,22 @@ let lastPastedText = ''
     clipboard.writeText(text)
     lastPastedText = text
 
-    // let history = store.get('history', [])
-    // const index = history.findIndex(item => item.text === text)
-    // let clickedItem
-    // if (index !== -1) {
-    //   clickedItem = history.splice(index, 1)[0]
-    // } else {
-    //   clickedItem = {
-    //     text, pinned: false, createdAt: Date.now()
-    //   }
-    // }
-    // history.unshift(clickedItem)
-    // store.set('history', history)
-    // if (win && win.webContents) {
-    //   win.webContents.send('clipboard-changed', text)
-    //   win.webContents.send('history-updated', history)
-    // }
+    let history = store.get('history', [])
+    const index = history.findIndex(item => item.text === text)
+    let clickedItem
+    if (index !== -1) {
+      clickedItem = history.splice(index, 1)[0]
+    } else {
+      clickedItem = {
+        text, pinned: false, createdAt: Date.now()
+      }
+    }
+    history.unshift(clickedItem)
+    store.set('history', history)
+    if (win && win.webContents) {
+      win.webContents.send('clipboard-changed', text)
+      win.webContents.send('history-updated', history)
+    }
   })
 
   ipcMain.on('toggle-pin', (_e, text) => {
@@ -205,7 +202,6 @@ let lastPastedText = ''
   })
 
   app.on('window-all-closed', () => {
-    // if (process.platform !== 'darwin')
-    app.quit()
+    if (process.platform !== 'darwin') app.quit()
   })
 })()
