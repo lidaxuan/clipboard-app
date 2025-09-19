@@ -1,0 +1,61 @@
+{
+  "name": "clipboard-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:vite": "vite build",
+    "build": "npm run build:vite && electron-builder",
+    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron": "NODE_ENV=development electron ."
+  },
+  "build": {
+    "appId": "com.lidaxuan.clipboardapp",
+    "productName": "ClipboardApp",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "files": [
+      "dist/**",
+      "main.cjs",
+      "preload.js",
+      "icon.png",
+      "icon.ico"
+    ],
+    "mac": {
+      "icon": "icon.png",
+      "target": ["dmg"]
+    },
+    "win": {
+      "icon": "icon.ico",
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+
+  "keywords": [],
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "concurrently": "^9.2.1",
+    "electron": "^24.8.8",
+    "electron-builder": "^26.0.12",
+    "vite": "^7.1.6",
+    "vite-plugin-electron": "^0.29.0",
+    "wait-on": "^9.0.0"
+  },
+  "dependencies": {
+    "electron-store": "^10.1.0",
+    "vue": "^3.5.21"
+  }
+}
