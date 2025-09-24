@@ -5,14 +5,13 @@
       <button @click="clearHistory" class="clear-btn">清空历史</button>
     </header>
 
-
     <main>
       <ul class="history-list">
-        <li v-for="item in history" :key="item.text" class="history-item">
+        <li v-for="item in filteredHistory" :key="item.text" class="history-item">
           <span class="text" :title="item.text">{{ item.text }}</span>
           <div class="actions">
             <button @click.stop="copy(item.text)">复制</button>
-            <button @click.stop="pin(item.text)">
+            <button @click.stop="pin(item)">
               {{ item.pinned ? '取消置顶' : '置顶' }}
             </button>
             <button @click.stop="deleteHistoryItem(item.text)">删除</button>
@@ -20,7 +19,6 @@
         </li>
       </ul>
     </main>
-
   </div>
 </template>
 
@@ -31,11 +29,15 @@ const history = ref([])   // { text: string, pinned: boolean }
 const keyword = ref('')
 const currentClipboard = ref('')  // ✅ 定义这个响应式变量
 
-
+// ✅ 使用 filteredHistory 来保证置顶排最前
 const filteredHistory = computed(() => {
   return history.value
       .filter(item => item.text.toLowerCase().includes(keyword.value.toLowerCase()))
-      .sort((a, b) => b.pinned - a.pinned)
+      .sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1
+        if (!a.pinned && b.pinned) return 1
+        return 0
+      })
 })
 
 window.electronAPI.onHistoryUpdate((updatedHistory) => {
@@ -56,35 +58,29 @@ onMounted(async () => {
   });
 });
 
-
 const copy = (text) => {
   window.electronAPI.pasteHistory(text)
 }
 
-const pin = (text) => {
-  window.electronAPI.togglePin(text) // 你可以在 main 里增加 pinned 状态
+// ✅ 改造 pin，不会产生复制问题
+const pin = (item) => {
+  item.pinned = !item.pinned
+  window.electronAPI.togglePin(item.text) // 通知主进程更新 pinned 状态
 }
 
 const deleteHistoryItem = (text) => {
   window.electronAPI.deleteHistoryItem(text)
 }
 
-
 // ✅ 清空（调用主进程）
 const clearHistory = async () => {
   history.value = await window.electronAPI.clearHistory()
-}
-
-// ✅ 置顶（预留）
-const togglePin = (index) => {
-  history.value[index].pinned = !history.value[index].pinned
 }
 
 const formatText = (text) => {
   return text.replace(/\n/g, '⏎ ')
 }
 </script>
-
 
 <style>
 .app-container {

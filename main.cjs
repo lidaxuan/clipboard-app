@@ -1,24 +1,18 @@
 // main.cjs
-const {app, BrowserWindow, clipboard, ipcMain, Tray, Menu, globalShortcut} = require('electron')
+const { app, BrowserWindow, clipboard, ipcMain, Tray, Menu, globalShortcut } = require('electron')
 const path = require('path')
-const Store = require('electron-store');
-const store = new Store();
+const Store = require('electron-store')
+const store = new Store()
 
-
-// let Store, store
 let win
 let tray
 let lastClipboardText = ''
 let lastPastedText = ''
 
 ;(async () => {
-  // const mod = await import('electron-store')
-  // Store = mod.default
-  // store = new Store()
-
   // 创建窗口
   function createWindow() {
-    const lastBounds = store.get('windowBounds') || {width: 400, height: 600, x: undefined, y: undefined}
+    const lastBounds = store.get('windowBounds') || { width: 400, height: 600, x: undefined, y: undefined }
 
     win = new BrowserWindow({
       width: lastBounds.width,
@@ -33,14 +27,10 @@ let lastPastedText = ''
       }
     })
 
-    // 记住窗口大小和位置
     win.on('resize', saveWindowBounds)
     win.on('move', saveWindowBounds)
-    // win.once('ready-to-show', () => win.show())
 
-    // 关闭时隐藏窗口
-    win.on('close', (e) => {
-      // e.preventDefault()
+    win.on('close', () => {
       app.quit()
     })
 
@@ -61,7 +51,7 @@ let lastPastedText = ''
     }
   }
 
-  // 清理过期历史
+  // 清理过期历史（只保留今天）
   function cleanExpiredHistory() {
     let history = store.get('history', [])
     const startOfToday = new Date()
@@ -70,11 +60,34 @@ let lastPastedText = ''
     store.set('history', history)
   }
 
-  // 安全发送消息
   function safeSend(channel, ...args) {
     if (win && !win.isDestroyed() && win.webContents) {
       win.webContents.send(channel, ...args)
     }
+  }
+
+  // 插入历史记录（保持置顶在上面）
+  function insertHistoryItem(history, item) {
+    // 删除旧位置
+    history = history.filter(h => h.text !== item.text)
+
+    const pinnedItems = history.filter(h => h.pinned)
+    const normalItems = history.filter(h => !h.pinned)
+
+    // 新内容插入到普通区最前
+    normalItems.unshift(item)
+
+    // 只保留今天
+    const startOfToday = new Date()
+    startOfToday.setHours(0, 0, 0, 0)
+    let newHistory = [...pinnedItems, ...normalItems].filter(h => h.createdAt >= startOfToday.getTime())
+
+    // 限制 50 条
+    if (newHistory.length > 50) {
+      newHistory = [...pinnedItems, ...normalItems].slice(0, 50)
+    }
+
+    return newHistory
   }
 
   // 剪贴板监听
@@ -85,17 +98,7 @@ let lastPastedText = ''
 
       lastClipboardText = text
       let history = store.get('history', [])
-
-      // 删除旧位置，避免重复
-      history = history.filter(item => item.text !== text)
-      history.unshift({text, pinned: false, createdAt: Date.now()})
-
-      // 只保留今天
-      const startOfToday = new Date()
-      startOfToday.setHours(0, 0, 0, 0)
-      history = history.filter(item => item.createdAt >= startOfToday.getTime())
-
-      if (history.length > 50) history = history.slice(0, 50)
+      history = insertHistoryItem(history, { text, pinned: false, createdAt: Date.now() })
 
       store.set('history', history)
       safeSend('clipboard-changed', text)
@@ -111,9 +114,9 @@ let lastPastedText = ''
     // 托盘
     tray = new Tray(process.platform === 'win32' ? path.join(__dirname, 'icon.ico') : path.join(__dirname, 'icon.png'))
     const contextMenu = Menu.buildFromTemplate([
-      {label: '显示窗口', click: () => win.show()},
-      {label: '隐藏窗口', click: () => win.hide()},
-      {label: '退出', click: () => app.quit()}
+      { label: '显示窗口', click: () => win.show() },
+      { label: '隐藏窗口', click: () => win.hide() },
+      { label: '退出', click: () => app.quit() }
     ])
     tray.setToolTip('剪贴板助手')
     tray.setContextMenu(contextMenu)
@@ -158,21 +161,10 @@ let lastPastedText = ''
     lastPastedText = text
 
     // let history = store.get('history', [])
-    // const index = history.findIndex(item => item.text === text)
-    // let clickedItem
-    // if (index !== -1) {
-    //   clickedItem = history.splice(index, 1)[0]
-    // } else {
-    //   clickedItem = {
-    //     text, pinned: false, createdAt: Date.now()
-    //   }
-    // }
-    // history.unshift(clickedItem)
+    // history = insertHistoryItem(history, { text, pinned: false, createdAt: Date.now() })
+    //
     // store.set('history', history)
-    // if (win && win.webContents) {
-    //   win.webContents.send('clipboard-changed', text)
-    //   win.webContents.send('history-updated', history)
-    // }
+    // safeSend('history-updated', history)
   })
 
   ipcMain.on('toggle-pin', (_e, text) => {
@@ -180,12 +172,6 @@ let lastPastedText = ''
     const idx = history.findIndex(item => item.text === text)
     if (idx !== -1) {
       history[idx].pinned = !history[idx].pinned
-      // 置顶排序
-      history.sort((a, b) => {
-        if (a.pinned && !b.pinned) return -1
-        if (!a.pinned && b.pinned) return 1
-        return b.createdAt - a.createdAt
-      })
       store.set('history', history)
       safeSend('history-updated', history)
     }
@@ -198,14 +184,12 @@ let lastPastedText = ''
     safeSend('history-updated', history)
   })
 
-  // macOS Dock 点击激活
   app.on('activate', () => {
     if (!win || win.isDestroyed()) createWindow()
     else win.show()
   })
 
   app.on('window-all-closed', () => {
-    // if (process.platform !== 'darwin')
     app.quit()
   })
 })()
