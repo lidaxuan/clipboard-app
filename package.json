@@ -1,7 +1,7 @@
 {
   "name": "clipboard-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "大玄开发的一款基于mac的复制粘贴app",
   "main": "main.cjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -33,8 +33,7 @@
     },
     "win": {
       "icon": "icon.ico",
-      "target": ["nsis", "zip"],
-      "rcedit": false
+      "target": ["nsis", "zip"]
     },
     "nsis": {
       "oneClick": false,
