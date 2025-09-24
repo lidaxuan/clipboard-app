@@ -2,6 +2,7 @@
 import { app, BrowserWindow, clipboard, ipcMain, Tray, Menu, globalShortcut } from 'electron';
 import path from 'path';
 import Store from 'electron-store'
+
 let store = new Store()
 // let Store, store
 let win

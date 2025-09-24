@@ -4,7 +4,9 @@
       <h1>剪贴板助手</h1>
       <button @click="clearHistory" class="clear-btn">清空历史</button>
     </header>
-
+    <button @click="sendMessageMac('WeChat', '张三', '你好，这是一条自动发送的消息')">test1/微信</button>
+    <button @click="sendMessageMac('QQ', '张三', '你好，我是测试消息')">test2/QQ</button>
+    <button @click="sendMessageMac('DingTalk', '张三', '自动发送成功')">test3/钉钉</button>
     <main>
       <ul class="history-list">
         <li v-for="item in filteredHistory" :key="item.text" class="history-item">
@@ -23,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import {ref, computed, onMounted} from 'vue'
 
 const history = ref([])   // { text: string, pinned: boolean }
 const keyword = ref('')
@@ -68,6 +70,10 @@ const pin = (item) => {
   window.electronAPI.togglePin(item.text) // 通知主进程更新 pinned 状态
 }
 
+const sendMessageMac = (appName, contact, message) => {
+  window.electronAPI.sendMsg({ appName, contact, message });
+}
+
 const deleteHistoryItem = (text) => {
   window.electronAPI.deleteHistoryItem(text)
 }
@@ -108,6 +114,7 @@ header {
   border-radius: 4px;
   cursor: pointer;
 }
+
 .clear-btn:hover {
   background-color: #c0392b;
 }
@@ -127,7 +134,7 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .history-item .text {

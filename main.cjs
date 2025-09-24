@@ -3,6 +3,7 @@ const { app, BrowserWindow, clipboard, ipcMain, Tray, Menu, globalShortcut } = r
 const path = require('path')
 const Store = require('electron-store')
 const store = new Store()
+const { exec } = require('child_process');
 
 let win
 let tray
@@ -183,6 +184,39 @@ let lastPastedText = ''
     store.set('history', history)
     safeSend('history-updated', history)
   })
+
+  ipcMain.on('send-message', (event, { appName, contact, message }) => {
+    if (!appName || !contact || !message) return;
+    console.log(11, appName, contact, message)
+    const contactEscaped = contact.replace(/"/g, '\\"');
+    const messageEscaped = message.replace(/"/g, '\\"');
+
+    const appleScript = `
+    tell application "${appName}"
+        activate
+    end tell
+    delay 1
+    tell application "System Events"
+        keystroke "${contactEscaped}"
+        delay 0.3
+        key code 36
+        delay 0.5
+        set the clipboard to "${messageEscaped}"
+        delay 0.2
+        keystroke "v" using {command down}
+        delay 0.2
+        key code 36
+    end tell
+  `;
+
+    exec(`osascript -e '${appleScript}'`, (err) => {
+      if (err) {
+        console.error('发送失败', err);
+      } else {
+        console.log(`消息已发送给 ${contact} (${appName})`);
+      }
+    });
+  });
 
   app.on('activate', () => {
     if (!win || win.isDestroyed()) createWindow()

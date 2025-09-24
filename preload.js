@@ -7,5 +7,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onHistoryUpdate: (cb) => ipcRenderer.on('history-updated', (_e, data) => cb(data)),
   getHistory: () => ipcRenderer.invoke('get-history'),
   clearHistory: () => ipcRenderer.invoke('clear-history'),
-  deleteHistoryItem: (text) => ipcRenderer.send('delete-history-item', text)
+  deleteHistoryItem: (text) => ipcRenderer.send('delete-history-item', text),
+  sendMsg: ({ appName, contact, message }) => ipcRenderer.send('send-message', { appName, contact, message })
 })
