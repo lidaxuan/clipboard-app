@@ -185,38 +185,48 @@ let lastPastedText = ''
     safeSend('history-updated', history)
   })
 
-  ipcMain.on('send-message', (event, { appName, contact, message }) => {
-    if (!appName || !contact || !message) return;
-    console.log(11, appName, contact, message)
-    const contactEscaped = contact.replace(/"/g, '\\"');
+  ipcMain.on('send-message', (_e, { appName, message }) => {
+    if (!appName || !message) return;
+
     const messageEscaped = message.replace(/"/g, '\\"');
 
-    const appleScript = `
-    tell application "${appName}"
-        activate
-    end tell
-    delay 1
-    tell application "System Events"
-        keystroke "${contactEscaped}"
-        delay 0.3
-        key code 36
-        delay 0.5
-        set the clipboard to "${messageEscaped}"
-        delay 0.2
-        keystroke "v" using {command down}
-        delay 0.2
-        key code 36
-    end tell
-  `;
+    // 唤醒应用
+    exec(`open -a "${appName}"`, (err) => {
+      if (err) return console.error('无法唤醒应用', err);
 
-    exec(`osascript -e '${appleScript}'`, (err) => {
-      if (err) {
-        console.error('发送失败', err);
-      } else {
-        console.log(`消息已发送给 ${contact} (${appName})`);
-      }
+      // 延时确保应用前台
+      setTimeout(() => {
+        let sendKey = 'key code 36'; // 默认回车
+        if (appName === 'QQ') sendKey = 'keystroke return'; // QQ 特殊处理
+
+        const lines = [
+          'tell application "System Events"',
+          `tell process "${appName}"`,
+          'set frontmost to true',
+          'delay 0.5',
+          'key code 51 using {command down}',      // 清空输入框
+          'set the clipboard to ""',               // 清空剪贴板
+          `delay 0.1`,
+          `set the clipboard to "${messageEscaped}"`,
+          'delay 0.2',
+          'keystroke "v" using {command down}',   // 粘贴消息
+          'delay 0.3',
+          sendKey,                                // 回车发送
+          'end tell',
+          'end tell'
+        ];
+
+        const appleScript = lines.map(line => `-e '${line}'`).join(' ');
+
+        exec(`osascript ${appleScript}`, (err2) => {
+          if (err2) console.error('发送失败', err2);
+          else console.log(`消息已发送给 ${messageEscaped} (${appName})`);
+        });
+      }, 500);
     });
   });
+
+
 
   app.on('activate', () => {
     if (!win || win.isDestroyed()) createWindow()

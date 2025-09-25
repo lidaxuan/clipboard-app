@@ -2,11 +2,22 @@
   <div class="app-container">
     <header>
       <h1>剪贴板助手</h1>
-      <button @click="clearHistory" class="clear-btn">清空历史</button>
+      <div class="header-right">
+        <div class="send-box">
+          <label>
+            <input type="radio" value="WeChat" v-model="selectedApp" />微信
+          </label>
+          <label>
+            <input type="radio" value="QQ" v-model="selectedApp" /> QQ
+          </label>
+          <label>
+            <input type="radio" value="DingTalk" v-model="selectedApp" />钉钉
+          </label>
+        </div>
+        <button @click="clearHistory" class="clear-btn">清空历史</button>
+      </div>
     </header>
-    <button @click="sendMessageMac('WeChat', '张三', '你好，这是一条自动发送的消息')">test1/微信</button>
-    <button @click="sendMessageMac('QQ', '张三', '你好，我是测试消息')">test2/QQ</button>
-    <button @click="sendMessageMac('DingTalk', '张三', '自动发送成功')">test3/钉钉</button>
+
     <main>
       <ul class="history-list">
         <li v-for="item in filteredHistory" :key="item.text" class="history-item">
@@ -17,6 +28,7 @@
               {{ item.pinned ? '取消置顶' : '置顶' }}
             </button>
             <button @click.stop="deleteHistoryItem(item.text)">删除</button>
+            <button @click.stop="sendMessageMac(item.text)">发送</button>
           </div>
         </li>
       </ul>
@@ -30,6 +42,8 @@ import {ref, computed, onMounted} from 'vue'
 const history = ref([])   // { text: string, pinned: boolean }
 const keyword = ref('')
 const currentClipboard = ref('')  // ✅ 定义这个响应式变量
+let userName = ref('')  // ✅ 定义这个响应式变量
+let selectedApp = ref('WeChat')  // ✅ 定义这个响应式变量
 
 // ✅ 使用 filteredHistory 来保证置顶排最前
 const filteredHistory = computed(() => {
@@ -70,8 +84,8 @@ const pin = (item) => {
   window.electronAPI.togglePin(item.text) // 通知主进程更新 pinned 状态
 }
 
-const sendMessageMac = (appName, contact, message) => {
-  window.electronAPI.sendMsg({ appName, contact, message });
+const sendMessageMac = (message) => {
+  window.electronAPI.sendMsg({appName: selectedApp.value, message});
 }
 
 const deleteHistoryItem = (text) => {
@@ -101,9 +115,45 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
+  padding: 20px 16px;
   background-color: #2c3e50;
   color: white;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.send-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.send-box label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+}
+
+.send-box input[type="radio"] {
+  margin-right: 4px;
+  accent-color: #409eff; /* 美化选中颜色 */
 }
 
 .clear-btn {
@@ -118,7 +168,6 @@ header {
 .clear-btn:hover {
   background-color: #c0392b;
 }
-
 
 .history-list {
   flex: 1;
