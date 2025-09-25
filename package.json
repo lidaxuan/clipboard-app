@@ -1,8 +1,9 @@
 {
   "name": "clipboard-app",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "大玄开发的一款基于mac的复制粘贴app",
   "main": "main.cjs",
+  "productName": "剪贴板助手",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:vite": "vite build",

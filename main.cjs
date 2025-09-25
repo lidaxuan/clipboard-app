@@ -18,6 +18,8 @@ let lastPastedText = ''
     win = new BrowserWindow({
       width: lastBounds.width,
       height: lastBounds.height,
+      minWidth: 400,
+      minHeight: 300,
       x: lastBounds.x,
       y: lastBounds.y,
       icon: process.platform === 'win32' ? path.join(__dirname, 'icon.ico') : path.join(__dirname, 'icon.png'),
@@ -226,6 +228,23 @@ let lastPastedText = ''
     });
   });
 
+
+  ipcMain.handle("get-phrases", () => {
+    return store.get("phrases", []);
+  });
+
+  ipcMain.handle("set-phrases", (_e, phrases) => {
+    store.set("phrases", phrases);
+    return true;
+  });
+
+  ipcMain.handle("send-message", (_e, { appName, message }) => {
+    if (!appName || !message) return;
+
+    // 这里写你的 AppleScript / exec 发送逻辑
+    console.log(`发送消息到 ${appName}: ${message}`);
+    return true;
+  });
 
 
   app.on('activate', () => {

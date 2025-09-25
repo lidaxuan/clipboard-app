@@ -8,5 +8,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getHistory: () => ipcRenderer.invoke('get-history'),
   clearHistory: () => ipcRenderer.invoke('clear-history'),
   deleteHistoryItem: (text) => ipcRenderer.send('delete-history-item', text),
-  sendMsg: (obj) => ipcRenderer.send('send-message', obj)
+  sendMsg: (obj) => ipcRenderer.send('send-message', obj),
+
+  // 获取话术列表
+  getPhrases: () => ipcRenderer.invoke("get-phrases"),
+  // 设置/保存话术列表
+  setPhrases: (phrases) => ipcRenderer.invoke("set-phrases", phrases), // 发送消息
+  sendMessage: (data) => ipcRenderer.invoke("send-message", data)
 })

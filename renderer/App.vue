@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <header>
-      <h1>剪贴板助手</h1>
+      <h1>快话助手</h1>
       <div class="header-right">
         <div class="send-box">
           <label>
@@ -18,79 +18,53 @@
       </div>
     </header>
 
-    <main>
-      <ul class="history-list">
-        <li v-for="item in filteredHistory" :key="item.text" class="history-item">
-          <span class="text" :title="item.text">{{ item.text }}</span>
-          <div class="actions">
-            <button @click.stop="copy(item.text)">复制</button>
-            <button @click.stop="pin(item)">
-              {{ item.pinned ? '取消置顶' : '置顶' }}
-            </button>
-            <button @click.stop="deleteHistoryItem(item.text)">删除</button>
-            <button @click.stop="sendMessageMac(item.text)">发送</button>
-          </div>
-        </li>
-      </ul>
+    <!-- Tab 切换 -->
+    <nav class="tabs">
+      <button :class="{active: activeTab === 'clipboard'}" @click="activeTab = 'clipboard'">
+        剪贴板
+      </button>
+      <button :class="{active: activeTab === 'phrases'}" @click="activeTab = 'phrases'">
+        话术库
+      </button>
+    </nav>
+
+    <!-- 内容区，动态加载 -->
+    <main class="tab-content">
+      <ClipboardView v-if="activeTab === 'clipboard'" :key="activeTab" :selected-app="selectedApp" />
+
+      <PhraseLibrary v-if="activeTab === 'phrases'" :selected-app="selectedApp" />
     </main>
+
+<!--    <main>-->
+<!--      <ul class="history-list">-->
+<!--        <li v-for="item in filteredHistory" :key="item.text" class="history-item">-->
+<!--          <span class="text" :title="item.text">{{ item.text }}</span>-->
+<!--          <div class="actions">-->
+<!--            <button @click.stop="copy(item.text)">复制</button>-->
+<!--            <button @click.stop="pin(item)">-->
+<!--              {{ item.pinned ? '取消置顶' : '置顶' }}-->
+<!--            </button>-->
+<!--            <button @click.stop="deleteHistoryItem(item.text)">删除</button>-->
+<!--            <button @click.stop="sendMessageMac(item.text)">发送</button>-->
+<!--          </div>-->
+<!--        </li>-->
+<!--      </ul>-->
+<!--    </main>-->
   </div>
 </template>
 
 <script setup>
-import {ref, computed, onMounted} from 'vue'
+import {ref, computed, onMounted} from 'vue';
+import ClipboardView from "./components/ClipboardView.vue";
+import PhraseLibrary from "./components/PhraseLibrary.vue";
 
-const history = ref([])   // { text: string, pinned: boolean }
-const keyword = ref('')
+const activeTab = ref("clipboard")
+
+
+
 const currentClipboard = ref('')  // ✅ 定义这个响应式变量
-let userName = ref('')  // ✅ 定义这个响应式变量
 let selectedApp = ref('WeChat')  // ✅ 定义这个响应式变量
 
-// ✅ 使用 filteredHistory 来保证置顶排最前
-const filteredHistory = computed(() => {
-  return history.value
-      .filter(item => item.text.toLowerCase().includes(keyword.value.toLowerCase()))
-      .sort((a, b) => {
-        if (a.pinned && !b.pinned) return -1
-        if (!a.pinned && b.pinned) return 1
-        return 0
-      })
-})
-
-window.electronAPI.onHistoryUpdate((updatedHistory) => {
-  history.value = updatedHistory; // 立即更新UI
-});
-
-// ✅ 启动时加载历史
-onMounted(async () => {
-  const storedHistory = await window.electronAPI.getHistory();
-  history.value = storedHistory || [];
-
-  window.electronAPI.onHistoryUpdate((updatedHistory) => {
-    history.value = updatedHistory;
-  });
-
-  window.electronAPI.onClipboardChange((text) => {
-    currentClipboard.value = text;
-  });
-});
-
-const copy = (text) => {
-  window.electronAPI.pasteHistory(text)
-}
-
-// ✅ 改造 pin，不会产生复制问题
-const pin = (item) => {
-  item.pinned = !item.pinned
-  window.electronAPI.togglePin(item.text) // 通知主进程更新 pinned 状态
-}
-
-const sendMessageMac = (message) => {
-  window.electronAPI.sendMsg({appName: selectedApp.value, message});
-}
-
-const deleteHistoryItem = (text) => {
-  window.electronAPI.deleteHistoryItem(text)
-}
 
 // ✅ 清空（调用主进程）
 const clearHistory = async () => {
@@ -208,6 +182,29 @@ header {
 
 .actions button:hover {
   background-color: #2980b9;
+}
+
+
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+  background: #f9f9f9;
+}
+.tabs button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+.tabs button.active {
+  border-bottom: 2px solid #42b983;
+  font-weight: bold;
+  color: #42b983;
+}
+.tab-content {
+  padding: 10px;
 }
 
 </style>
