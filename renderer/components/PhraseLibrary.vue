@@ -19,6 +19,7 @@
       <li v-for="item in filteredPhrases" :key="item.id" class="phrase-item">
         <span class="text">{{ item.text }}</span>
         <div class="actions">
+          <button @click.stop="copy(item.text)">复制</button>
           <button @click="editPhrase(item)">编辑</button>
           <button @click="deletePhrase(item.id)">删除</button>
           <button @click.stop="pin(item)">{{ item.pinned ? '取消置顶' : '置顶' }}</button>
@@ -64,6 +65,11 @@ const pin = (item) => {
   item.pinned = !item.pinned
   window.electronAPI.togglePinPhrases(JSON.parse(JSON.stringify(item))) // 通知主进程更新 pinned 状态
 }
+
+const copy = (text) => {
+  window.electronAPI.pasteHistory(text)
+}
+
 // 新增话术
 async function addPhrase() {
   const text = newPhrase.value.trim();
