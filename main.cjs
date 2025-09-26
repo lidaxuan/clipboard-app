@@ -95,22 +95,57 @@ let lastPastedText = '';
   }
 
   // 剪贴板监听
+  let clipboardWatcherRunning = false;
+  let stopClipboardWatcher = false;
+
   function startClipboardWatcher() {
-    setInterval(() => {
-      const text = clipboard.readText()
-      if (!text || text.trim() === '' || text === lastClipboardText || text === lastPastedText) return
+    if (clipboardWatcherRunning) return; // 避免重复启动
+    stopClipboardWatcher = false;
+    clipboardWatcherRunning = true;
 
-      lastClipboardText = text
-      let history = store.get('history', [])
-      history = insertHistoryItem(history, { text, pinned: false, createdAt: Date.now() })
+    const loop = async () => {
+      if (stopClipboardWatcher) {
+        clipboardWatcherRunning = false;
+        return;
+      }
 
-      store.set('history', history)
-      safeSend('clipboard-changed', text)
-      safeSend('history-updated', history)
-    }, 1000)
+      try {
+        const enabled = store.get("enableClipboard", true);
+        if (enabled) {
+          const text = clipboard.readText();
+          if (text && text.trim() !== "" && text !== lastClipboardText && text !== lastPastedText) {
+            lastClipboardText = text;
+            let history = store.get("history", []);
+            history = insertHistoryItem(history, {
+              text,
+              pinned: false,
+              createdAt: Date.now(),
+            });
+
+            store.set("history", history);
+            safeSend("clipboard-changed", text);
+            safeSend("history-updated", history);
+          }
+        }
+      } catch (e) {
+        console.error("Clipboard watcher error:", e);
+      }
+
+      // 用 setTimeout 而不是 setInterval，避免重叠
+      setTimeout(loop, 1000);
+    };
+
+    loop();
   }
 
+  function stopClipboardWatcherFn() {
+    stopClipboardWatcher = true;
+  }
+
+
   app.whenReady().then(() => {
+    console.log(store.store)
+    store.clear();
     cleanExpiredHistory()
     createWindow()
     startClipboardWatcher()
@@ -247,14 +282,32 @@ let lastPastedText = '';
       store.set('phrases', phrases);
       safeSend('phrases-updated', phrases);
     }
-  })
+  });
+
+
+  ipcMain.handle("get-enableClipboard", () => {
+    return store.get("enableClipboard", true);
+  });
+
+  ipcMain.handle("set-enableClipboard", (_e, val) => {
+    store.set("enableClipboard", val);
+    if (val) {
+      startClipboardWatcher();
+    } else {
+      stopClipboardWatcherFn();
+    }
+    // return true;
+  });
+
+
 
   app.on('activate', () => {
     if (!win || win.isDestroyed()) createWindow()
     else win.show()
-  })
+  });
 
   app.on('window-all-closed', () => {
     app.quit()
-  })
-})()
+  });
+
+})();

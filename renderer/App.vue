@@ -3,6 +3,10 @@
     <header>
       <h1>快话助手</h1>
       <div class="header-right">
+        <label class="flex" style="display: flex; align-items: center">
+          <input type="checkbox" v-model="enableClipboard" @change="enableClipboardChange" style="margin-right: 5px">
+          启用剪切板
+        </label>
         <div class="send-box">
           <label>
             <input type="radio" value="QQ" v-model="selectedApp"/> QQ
@@ -38,8 +42,9 @@ import Tabs from "./components/Tabs.vue";
 import Dialog from "./components/Dialog.vue";
 
 let selectedApp = ref('QQ')  // ✅ 定义这个响应式变量
-const activeTab = ref("clipboard");
+let activeTab = ref("clipboard");
 let tabKey = ref(Math.random());
+let enableClipboard = ref(true);
 const dialogRef = ref();
 
 const tabs = [
@@ -50,6 +55,10 @@ const tabs = [
 const getTabName = computed(() => {
   return tabs.find(item => item.key == activeTab.value).label;
 });
+onMounted(async () => {
+  enableClipboard.value = await window.electronAPI.getEnableClipboard();
+
+})
 
 // ✅ 清空（调用主进程）
 const clearHistory = () => {
@@ -71,8 +80,9 @@ const clearHistory = () => {
 
 }
 
-const formatText = (text) => {
-  return text.replace(/\n/g, '⏎ ')
+const enableClipboardChange = (val) => {
+  console.log("enableClipboard", enableClipboard.value)
+  window.electronAPI.setEnableClipboard(enableClipboard.value);
 }
 const tabsChange = (tab) => {
   console.log(tab);

@@ -18,4 +18,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   sendMessage: (data) => ipcRenderer.invoke("send-message", data),
   togglePinPhrases: (text) => ipcRenderer.send('toggle-pin-phrases', text),
   onPhrasesUpdate: (cb) => ipcRenderer.on('phrases-updated', (_e, data) => cb(data)),
+
+  getEnableClipboard: () => ipcRenderer.invoke("get-enableClipboard"),
+  // 设置/保存话术列表
+  setEnableClipboard: (val) => ipcRenderer.invoke("set-enableClipboard", val),
+
 })
