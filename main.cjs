@@ -144,8 +144,8 @@ let lastPastedText = '';
 
 
   app.whenReady().then(() => {
-    console.log(store.store)
-    store.clear();
+    // console.log(store.store)
+    // store.clear();
     cleanExpiredHistory()
     createWindow()
     startClipboardWatcher()

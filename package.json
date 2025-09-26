@@ -1,9 +1,9 @@
 {
-  "name": "clipboard-app",
+  "name": "Textor-app",
   "version": "2.0.0",
-  "description": "大玄开发的一款基于mac的复制粘贴app",
+  "description": "大玄开发的一款基于mac的话术盒子app",
   "main": "main.cjs",
-  "productName": "剪贴板助手",
+  "productName": "话术盒子",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:vite": "vite build",
@@ -17,7 +17,7 @@
   },
   "build": {
     "appId": "com.lidaxuan.clipboardapp",
-    "productName": "ClipboardApp",
+    "productName": "Textor",
     "directories": {
       "output": "dist_electron"
     },
