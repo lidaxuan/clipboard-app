@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <header>
-      <h1>快话助手</h1>
+      <h1>话术盒子</h1>
       <div class="header-right">
         <label class="flex" style="display: flex; align-items: center">
           <input type="checkbox" v-model="enableClipboard" @change="enableClipboardChange" style="margin-right: 5px">
