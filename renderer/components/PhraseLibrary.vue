@@ -16,12 +16,13 @@
 
     <!-- 话术列表 -->
     <ul class="phrase-list">
-      <li v-for="p in phrases" :key="p.id" class="phrase-item">
-        <span class="text">{{ p.text }}</span>
+      <li v-for="item in filteredPhrases" :key="item.id" class="phrase-item">
+        <span class="text">{{ item.text }}</span>
         <div class="actions">
-          <button @click="editPhrase(p)">编辑</button>
-          <button @click="deletePhrase(p.id)">删除</button>
-          <button @click.stop="sendMessageMac(p.text)">发送</button>
+          <button @click="editPhrase(item)">编辑</button>
+          <button @click="deletePhrase(item.id)">删除</button>
+          <button @click.stop="pin(item)">{{ item.pinned ? '取消置顶' : '置顶' }}</button>
+          <button @click.stop="sendMessageMac(item.text)">发送</button>
         </div>
       </li>
     </ul>
@@ -31,7 +32,7 @@
 </template>
 
 <script setup>
-import {ref, onMounted} from "vue"
+import {ref, onMounted, computed} from "vue"
 import Message from "./Message/index.js";
 import Dialog from "./Dialog.vue"
 
@@ -44,9 +45,25 @@ const {selectedApp} = defineProps({
 });
 // 组件加载时读取话术列表
 onMounted(async () => {
-  phrases.value = await window.electronAPI.getPhrases()
+  phrases.value = await window.electronAPI.getPhrases();
+
+  window.electronAPI.onPhrasesUpdate((updatedPhrases) => {
+    phrases.value = updatedPhrases;
+  });
 })
 
+const filteredPhrases = computed(() => {
+  return phrases.value.sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1
+        if (!a.pinned && b.pinned) return 1
+        return 0
+      })
+})
+
+const pin = (item) => {
+  item.pinned = !item.pinned
+  window.electronAPI.togglePinPhrases(JSON.parse(JSON.stringify(item))) // 通知主进程更新 pinned 状态
+}
 // 新增话术
 async function addPhrase() {
   const text = newPhrase.value.trim();

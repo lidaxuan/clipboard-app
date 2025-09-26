@@ -6,9 +6,7 @@
         <span class="text" :title="item.text">{{ item.text }}</span>
         <div class="actions">
           <button @click.stop="copy(item.text)">复制</button>
-          <button @click.stop="pin(item)">
-            {{ item.pinned ? '取消置顶' : '置顶' }}
-          </button>
+          <button @click.stop="pin(item)">{{ item.pinned ? '取消置顶' : '置顶' }}</button>
           <button @click.stop="deleteHistoryItem(item.text)">删除</button>
           <button @click.stop="sendMessageMac(item.text)">发送</button>
         </div>

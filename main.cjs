@@ -238,6 +238,15 @@ let lastPastedText = ''
     return true;
   });
 
+  ipcMain.on('toggle-pin-phrases', (_e, row) => {
+    let phrases = store.get('phrases', [])
+    const idx = phrases.findIndex(item => item.id === row.id)
+    if (idx !== -1) {
+      phrases[idx].pinned = !phrases[idx].pinned;
+      store.set('phrases', phrases);
+      safeSend('phrases-updated', phrases);
+    }
+  })
 
   app.on('activate', () => {
     if (!win || win.isDestroyed()) createWindow()
