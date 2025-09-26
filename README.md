@@ -25,3 +25,50 @@ npx electron-builder --win
   end tell
 `;
 ```
+
+DEMO
+```vue
+<template>
+  <div>
+    <button @click="openConfirm">确认对话框</button>
+    <button @click="openPrompt">输入框对话框</button>
+
+    <Dialog ref="dialogRef" />
+  </div>
+</template>
+
+<script setup>
+import { ref } from "vue"
+import Dialog from "./Dialog.vue";
+
+const dialogRef = ref();
+
+function openConfirm() {
+  dialogRef.value.open({
+    title: "确认操作",
+    message: "确定要删除吗？",
+    onConfirm: () => {
+      console.log("用户点击了确定")
+    },
+    onCancel: () => {
+      console.log("用户点击了取消")
+    },
+  })
+}
+
+function openPrompt() {
+  dialogRef.value.open({
+    title: "输入名称",
+    showInput: true,
+    defaultValue: "默认内容",
+    onConfirm: (val) => {
+      console.log("用户输入：", val)
+    },
+    onCancel: () => {
+      console.log("用户取消输入")
+    },
+  })
+}
+</script>
+
+```

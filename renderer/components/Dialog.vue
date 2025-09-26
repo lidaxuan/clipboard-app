@@ -1,111 +1,127 @@
 <template>
-  <div v-if="visible" class="modal-overlay" @click.self="cancel">
-    <div class="modal-container">
-      <h3 class="modal-title">{{ title }}</h3>
-      <input
-          v-model="inputValue"
-          :placeholder="placeholder"
-          class="modal-input"
-          @keyup.enter="confirm"
-      />
-      <div class="modal-actions">
-        <button class="confirm-btn" @click="confirm">确定</button>
-        <button class="cancel-btn" @click="cancel">取消</button>
+  <div v-if="visible" class="dialog-mask">
+    <div class="dialog-box">
+      <h3 class="dialog-title">{{ options.title }}</h3>
+
+      <div class="dialog-content">
+        <!-- 普通消息 -->
+        <p v-if="!options.showInput">{{ options.message }}</p>
+
+        <!-- 输入框 -->
+        <input
+            v-if="options.showInput"
+            v-model="inputValue"
+            type="text"
+            class="dialog-input"
+        />
+      </div>
+
+      <div class="dialog-actions">
+        <button @click="handleCancel">取消</button>
+        <button class="confirm" @click="handleConfirm">确定</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, defineProps, defineEmits } from "vue"
+import { ref, reactive } from "vue"
 
-const props = defineProps({
-  modelValue: String,     // 父组件绑定的输入值
-  visible: Boolean,       // 显示状态
-  title: { type: String, default: "请输入内容" },
-  placeholder: { type: String, default: "" },
+const visible = ref(false)
+const inputValue = ref("")
+const options = reactive({
+  title: "提示",
+  message: "",
+  showInput: false,
+  defaultValue: "",
+  onConfirm: null,
+  onCancel: null,
 })
 
-const emits = defineEmits(["update:modelValue", "confirm", "cancel"])
+// 外部调用方法
+function open(opts = {}) {
+  options.title = opts.title || "提示"
+  options.message = opts.message || ""
+  options.showInput = !!opts.showInput
+  options.defaultValue = opts.defaultValue || ""
+  inputValue.value = options.defaultValue
+  options.onConfirm = opts.onConfirm || null
+  options.onCancel = opts.onCancel || null
 
-// 内部输入值
-const inputValue = ref(props.modelValue || "")
-
-// 同步外部 modelValue
-watch(
-    () => props.modelValue,
-    (val) => {
-      inputValue.value = val
-    }
-)
-
-// 确认
-function confirm() {
-  emits("update:modelValue", inputValue.value)
-  emits("confirm", inputValue.value)
+  visible.value = true
 }
 
-// 取消
-function cancel() {
-  emits("cancel")
+function handleCancel() {
+  visible.value = false
+  options.onCancel && options.onCancel()
 }
+
+function handleConfirm() {
+  visible.value = false
+  if (options.showInput) {
+    options.onConfirm && options.onConfirm(inputValue.value)
+  } else {
+    options.onConfirm && options.onConfirm()
+  }
+}
+
+defineExpose({ open }) // 外部能直接调用 open()
 </script>
 
-<style scoped>
-.modal-overlay {
+<style lang="scss" scoped>
+.dialog-mask {
   position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-.modal-container {
-  background: #fff;
-  border-radius: 8px;
-  padding: 16px;
-  width: 320px;
-  max-width: 90%;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-}
-.modal-title {
-  margin-bottom: 12px;
-  font-size: 16px;
-  font-weight: 500;
-}
-.modal-input {
+  top: 0;
+  left: 0;
   width: 100%;
-  padding: 6px 8px;
-  font-size: 14px;
-  margin-bottom: 12px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
 }
-.modal-actions {
+
+.dialog-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  min-width: 280px;
+  max-width: 400px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  margin: 0 auto;
+  margin-top: 200px;
+}
+
+.dialog-title {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.dialog-content {
+  margin-bottom: 15px;
+
+  .dialog-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+}
+
+.dialog-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 6px;
-}
-.confirm-btn {
-  background-color: #42b983;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 4px 12px;
-  cursor: pointer;
-}
-.confirm-btn:hover {
-  background-color: #36a373;
-}
-.cancel-btn {
-  background: #eee;
-  border: none;
-  border-radius: 4px;
-  padding: 4px 12px;
-  cursor: pointer;
-}
-.cancel-btn:hover {
-  background: #ddd;
+  gap: 10px;
+
+  button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #eee;
+    color: #000;
+    &.confirm {
+      background: #409eff;
+      color: #fff;
+    }
+  }
 }
 </style>

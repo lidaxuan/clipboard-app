@@ -14,17 +14,24 @@
         </div>
       </li>
     </ul>
+
+    <Dialog ref="dialogRef" />
   </div>
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from "vue"
+import {computed, onMounted, ref} from "vue";
+import Message from "./Message/index.js";
+import Dialog from "./Dialog.vue";
 
-const props = defineProps({
+const {selectedApp} = defineProps({
   selectedApp: String
 });
+
+const currentClipboard = ref('');  // ✅ 定义这个响应式变量
 const history = ref([]);   // { text: string, pinned: boolean }
-const keyword = ref('')
+const keyword = ref('');
+const dialogRef = ref();
 
 window.electronAPI.onHistoryUpdate((updatedHistory) => {
   history.value = updatedHistory; // 立即更新UI
@@ -68,15 +75,65 @@ const pin = (item) => {
 }
 
 const sendMessageMac = (message) => {
-  window.electronAPI.sendMsg({appName: selectedApp.value, message});
+  console.log("selectedApp", selectedApp)
+  window.electronAPI.sendMsg({appName: selectedApp, message});
 }
 
 const deleteHistoryItem = (text) => {
-  window.electronAPI.deleteHistoryItem(text)
+  dialogRef.value.open({
+    title: "确认操作",
+    message: "确定要删除吗？",
+    onConfirm: () => {
+      window.electronAPI.deleteHistoryItem(text);
+      Message({message: "删除成功"});
+    },
+    onCancel: () => {
+      console.log("用户点击了取消")
+    },
+  })
+
 }
 
-
-function clearHistory() {
-  history.value = []
-}
 </script>
+
+<style lang="scss">
+.history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  .history-item {
+    background-color: white;
+    margin-bottom: 8px;
+    padding: 8px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    .actions button {
+      margin-left: 4px;
+      padding: 4px 8px;
+      font-size: 0.85rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: #3498db;
+      color: white;
+      transition: background-color 0.2s;
+      &n:hover {
+        background-color: #2980b9;
+      }
+    }
+
+    .text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding-right: 8px;
+    }
+  }
+}
+
+</style>

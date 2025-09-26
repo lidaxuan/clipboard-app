@@ -224,7 +224,7 @@ let lastPastedText = ''
           if (err2) console.error('发送失败', err2);
           else console.log(`消息已发送给 ${messageEscaped} (${appName})`);
         });
-      }, 500);
+      }, 100);
     });
   });
 
@@ -235,14 +235,6 @@ let lastPastedText = ''
 
   ipcMain.handle("set-phrases", (_e, phrases) => {
     store.set("phrases", phrases);
-    return true;
-  });
-
-  ipcMain.handle("send-message", (_e, { appName, message }) => {
-    if (!appName || !message) return;
-
-    // 这里写你的 AppleScript / exec 发送逻辑
-    console.log(`发送消息到 ${appName}: ${message}`);
     return true;
   });
 

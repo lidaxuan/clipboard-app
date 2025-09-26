@@ -1,6 +1,6 @@
 {
   "name": "clipboard-app",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "大玄开发的一款基于mac的复制粘贴app",
   "main": "main.cjs",
   "productName": "剪贴板助手",
@@ -30,11 +30,16 @@
     ],
     "mac": {
       "icon": "icon.png",
-      "target": ["dmg"]
+      "target": [
+        "dmg"
+      ]
     },
     "win": {
       "icon": "icon.ico",
-      "target": ["nsis", "zip"]
+      "target": [
+        "nsis",
+        "zip"
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -54,8 +59,9 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
     "concurrently": "^9.2.1",
-    "electron": "^24.8.8",
+    "electron": "^38.1.2",
     "electron-builder": "^26.0.12",
+    "sass": "^1.93.2",
     "vite": "^7.1.6",
     "vite-plugin-electron": "^0.29.0",
     "wait-on": "^9.0.0"
