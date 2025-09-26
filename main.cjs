@@ -8,9 +8,8 @@ const { exec } = require('child_process');
 let win
 let tray
 let lastClipboardText = ''
-let lastPastedText = ''
-
-;(async () => {
+let lastPastedText = '';
+(async () => {
   // 创建窗口
   function createWindow() {
     const lastBounds = store.get('windowBounds') || { width: 400, height: 600, x: undefined, y: undefined }
@@ -18,8 +17,10 @@ let lastPastedText = ''
     win = new BrowserWindow({
       width: lastBounds.width,
       height: lastBounds.height,
-      minWidth: 400,
-      minHeight: 300,
+      minWidth: 500,
+      minHeight: 500,
+      // maxWidth: 600,
+      // maxHeight: 700,
       x: lastBounds.x,
       y: lastBounds.y,
       icon: process.platform === 'win32' ? path.join(__dirname, 'icon.ico') : path.join(__dirname, 'icon.png'),
