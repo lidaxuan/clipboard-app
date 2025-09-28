@@ -1,0 +1,11 @@
+
+//圆角
+@for $brSize from 0 through 50 {
+    .br-#{$brSize} {
+        border-radius: #{$brSize}px;
+    }
+}
+.border-none {
+    border: none;
+}
+

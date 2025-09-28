@@ -126,7 +126,7 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .tab-container {
   width: 100%;
-  height: calc(100% - 68px);
+  height: calc(100% - 97px);
 
   .tabs {
     position: relative;

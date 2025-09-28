@@ -36,6 +36,7 @@
 import {ref, onMounted, computed} from "vue"
 import Message from "./Message/index.js";
 import Dialog from "./Dialog.vue"
+import sendMessageCommon from "./commonHandle.js";
 
 const phrases = ref([]);
 const newPhrase = ref("");
@@ -121,7 +122,7 @@ async function deletePhrase(id) {
 // 发送话术
 const sendMessageMac = (message) => {
   console.log("selectedApp", selectedApp)
-  window.electronAPI.sendMsg({appName: selectedApp, message});
+  sendMessageCommon(selectedApp, message);
 }
 </script>
 

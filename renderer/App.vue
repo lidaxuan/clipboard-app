@@ -2,23 +2,31 @@
   <div class="app-container">
     <header>
       <h1>话术盒子</h1>
-      <div class="header-right">
-        <label class="flex" style="display: flex; align-items: center">
-          <input type="checkbox" v-model="enableClipboard" @change="enableClipboardChange" style="margin-right: 5px">
-          监听剪切板
-        </label>
-        <div class="send-box">
-          <label>
-            <input type="radio" value="QQ" v-model="selectedApp"/> QQ
+      <div class="header-right flex flex-column ai-end">
+        <div class="flex">
+          <label class="mr-10 flex ai-center">
+            <input type="checkbox" v-model="alwaysOnTop" @change="toggleAlwaysOnTop" class="mr-5"/>
+            窗口置顶
           </label>
-          <label>
-            <input type="radio" value="WeChat" v-model="selectedApp"/>微信
-          </label>
-          <label>
-            <input type="radio" value="DingTalk" v-model="selectedApp"/>钉钉
+          <label class="flex ai-center">
+            <input type="checkbox" v-model="enableClipboard" @change="enableClipboardChange" class="mr-5">
+            监听剪切板
           </label>
         </div>
-        <button @click="clearHistory" class="clear-btn">清空历史( {{ getTabName }} )</button>
+        <div class="flex">
+          <div class="send-box">
+            <label>
+              <input type="radio" value="QQ" v-model="selectedApp"/> QQ
+            </label>
+            <label>
+              <input type="radio" value="WeChat" v-model="selectedApp"/>微信
+            </label>
+            <label>
+              <input type="radio" value="DingTalk" v-model="selectedApp"/>钉钉
+            </label>
+          </div>
+          <button @click="clearHistory" class="clear-btn">清空历史( {{ getTabName }} )</button>
+        </div>
       </div>
     </header>
 
@@ -62,10 +70,12 @@ let enableClipboard = ref(true);
 let isShow = ref(false);
 const dialogRef = ref();
 
-const tabs = [
-  {key: 'clipboard', label: '剪贴板'},
-  {key: 'phrases', label: '话术库'},
-];
+const alwaysOnTop = ref(true);
+const toggleAlwaysOnTop = () => {
+  window.electronAPI.setAlwaysOnTop(alwaysOnTop.value);
+};
+
+const tabs = [{key: 'clipboard', label: '剪贴板'}, {key: 'phrases', label: '话术库'}];
 
 const getTabName = computed(() => {
   return tabs.find(item => item.key == activeTab.value).label;
@@ -130,8 +140,6 @@ const tabsChange = (tab) => {
     }
 
     .header-right {
-      display: flex;
-      align-items: center;
       gap: 16px;
     }
 
@@ -227,6 +235,7 @@ const tabsChange = (tab) => {
         flex-direction: column;
         align-items: center;
         justify-content: center;
+
         img {
           margin-bottom: 5px;
           box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .05);

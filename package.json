@@ -1,6 +1,6 @@
 {
   "name": "Textor-app",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "大玄开发的一款基于mac的话术盒子app",
   "main": "main.cjs",
   "productName": "话术盒子",
@@ -16,7 +16,7 @@
     "dev:electron": "NODE_ENV=development electron ."
   },
   "build": {
-    "appId": "com.lidaxuan.clipboardapp",
+    "appId": "com.lidaxuan.Textorapp",
     "productName": "Textor",
     "directories": {
       "output": "dist_electron"
@@ -32,7 +32,8 @@
       "icon": "icon.png",
       "target": [
         "dmg"
-      ]
+      ],
+      "hardenedRuntime": false
     },
     "win": {
       "icon": "icon.ico",

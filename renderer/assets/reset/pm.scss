@@ -1,0 +1,33 @@
+/*
+* 边距设置
+* padding 1、p-0 p-1 p-3
+*         2、pt-5 pb-5 pl-5 pr-5 ...
+* margin  1、m-0 m-1 m-3...
+*         2、mt-5 mb-5 ml-5 mr-5 ...
+* lr :left 、right   1、mlr-5  2、plr-5
+* bt :top 、bottom   1、mbt-5  2、pbt-5
+..*/
+@mixin backGauge(){
+    $sides: (top, bottom, left, right);
+    $spacing-types: (m: margin, p: padding);
+    @each $typeKey, $type in $spacing-types {
+        @for $size from 0 through 100 {
+            @each $side in $sides {
+                .#{$typeKey}#{str-slice($side, 0, 1)}-#{$size} {
+                    #{$type}-#{$side}: #{$size}px !important;
+                }
+                .#{$typeKey}-#{$size} {
+                    #{$type}-#{$side}: #{$size}px !important;
+                }
+                .#{$typeKey}lr-#{$size} {
+                    #{$type}-left: #{$size}px!important;
+                    #{$type}-right: #{$size}px!important;
+                }
+                .#{$typeKey}tb-#{$size} {
+                    #{$type}-top:  #{$size}px!important;
+                    #{$type}-bottom:  #{$size}px!important;
+                }
+            }
+        }
+    }
+}

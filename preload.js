@@ -22,5 +22,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getEnableClipboard: () => ipcRenderer.invoke("get-enableClipboard"),
   // 设置/保存话术列表
   setEnableClipboard: (val) => ipcRenderer.invoke("set-enableClipboard", val),
-
+  setAlwaysOnTop: (flag) => ipcRenderer.invoke('set-always-on-top', flag)
 })

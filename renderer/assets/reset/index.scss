@@ -1,0 +1,250 @@
+/*
+ * @version: v1.2.0
+ * @Author: 范庆龙
+ * @Date: 2021-08-19 11:22:43
+ * @LastEditors: 李大玄
+ * @LastEditTime: 2024-07-09 16:22:30
+ * @FilePath: /framework/ui/assets/base/reset/index.scss
+ */
+@charset "utf-8";
+//清楚标签默认样式;
+@mixin label() {
+    * {
+        box-sizing: border-box;
+    }
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        font-family: "Helvetica Neue", Helvetica, "PingFang SC", "PingFangSC-Semibold", "Hiragino Sans GB",
+            "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+    }
+    /*初始化 S*/
+    html,
+    body,
+    div,
+    span,
+    applet,
+    object,
+    iframe,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    blockquote,
+    pre,
+    a,
+    abbr,
+    acronym,
+    address,
+    big,
+    cite,
+    code,
+    del,
+    dfn,
+    em,
+    img,
+    ins,
+    kbd,
+    q,
+    s,
+    samp,
+    small,
+    strike,
+    strong,
+    sub,
+    sup,
+    tt,
+    var,
+    b,
+    u,
+    i,
+    center,
+    dl,
+    dt,
+    dd,
+    ol,
+    ul,
+    li,
+    fieldset,
+    form,
+    label,
+    legend,
+    article,
+    aside,
+    canvas,
+    details,
+    embed,
+    figure,
+    figcaption,
+    footer,
+    header,
+    menu,
+    nav,
+    output,
+    ruby,
+    section,
+    summary,
+    time,
+    mark,
+    audio,
+    video,
+    input {
+        border: 0;
+        font-weight: normal;
+        padding: 0;
+        margin: 0;
+    }
+    input:focus {
+        outline: none;
+    }
+
+    blockquote,
+    q {
+        quotes: none;
+    }
+    blockquote:before,
+    blockquote:after,
+    q:before,
+    q:after {
+        content: none;
+    }
+    table {
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+    a {
+        color: #7e8c8d;
+        text-decoration: none;
+        -webkit-backface-visibility: hidden;
+        cursor: pointer;
+    }
+    i {
+        font-style: normal;
+    }
+    li {
+        list-style: none;
+    }
+}
+
+@mixin setElement {
+    /* 定位 */
+    @each $val in (relative, absolute) {
+        .position-#{str-slice($val, 0, 1)} {
+            position: $val;
+        }
+    }
+    //浮动;
+    @each $float in (left, right) {
+        .f-#{str-slice($float, 0, 1)} {
+            float: $float;
+        }
+    }
+    //元素块级 行级  隐藏
+    @each $val in (none, block, inline-block) {
+        .d-#{str-slice($val, 0, 1)} {
+            display: $val;
+        }
+    }
+
+    // 截取
+    @each $over in (hidden, auto, initial) {
+        .overflow-#{str-slice($over, 0, 1)} {
+            overflow: $over !important;
+        }
+        @each $val in (x, y) {
+            .overflow-#{$val}-#{str-slice($over, 0, 1)} {
+                overflow-#{$val}: $over;
+            }
+        }
+    }
+}
+//一行显示。。。。;  .ellipsis
+@mixin ellipsis {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+// 强制折行;
+@mixin break-word {
+    word-break: break-all; /*支持IE，chrome，FF不支持*/
+    word-wrap: break-word; /*支持IE，chrome，FF*/
+}
+//设置字体
+@mixin setFont {
+    ////缩进
+    //@for $tinSize from 1 through 100 {
+    //    .tin-#{$tinSize} {
+    //        text-indent: #{$tinSize}px !important;
+    //    }
+    //}
+    //设置字体大小样式
+    @for $fontSize from 12 through 40 {
+        [font="#{$fontSize}"] {
+            font-size: #{$fontSize}px !important;
+        }
+        .fs-#{$fontSize} {
+            font-size: #{$fontSize}px !important;
+        }
+    }
+    @for $fontSize from 1 through 6 {
+        [font-weight="#{$fontSize*100}"] {
+            font-weight: #{$fontSize * 100} !important;
+        }
+        .fw-#{$fontSize*100} {
+            font-weight: #{$fontSize * 100} !important;
+        }
+    }
+    /* 鼠标手势 */ /* 默认手势 */
+    @each $val in (pointer, default) {
+        .cursor-#{str-slice($val, 0,1)} {
+            cursor: $val;
+        }
+    }
+}
+
+//清除浮动;
+@mixin clear() {
+    *zoom: 1;
+    &:after {
+        content: "";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+        overflow: hidden;
+    }
+}
+//进度条
+#nprogress .bar {
+    background: var(--layoutMain-6359CA) !important; //自定义颜色
+}
+//打包默认样式;
+@mixin base() {
+    @include label();
+    @include setFont();
+    @include setElement();
+    @include backGauge();
+    @include wh();
+    /* 默认浮动 */
+    .clear {
+        @include clear;
+    }
+    .ellipsis {
+        @include ellipsis;
+    }
+    /* 强制折行 */
+    .break-word {
+        @include break-word;
+    }
+}
+
+@import "./flex";
+@import "./border";
+@import "./pm";
+@import "./wh";
+//默认初始化;
+@include base();

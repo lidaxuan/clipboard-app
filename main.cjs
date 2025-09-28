@@ -7,7 +7,7 @@ const { exec } = require('child_process');
 
 let win
 let tray
-let lastClipboardText = ''
+let lastClipboardText = '';
 let lastPastedText = '';
 (async () => {
   // 创建窗口
@@ -23,6 +23,7 @@ let lastPastedText = '';
       // maxHeight: 700,
       x: lastBounds.x,
       y: lastBounds.y,
+      alwaysOnTop: true,  // 初始置顶
       icon: process.platform === 'win32' ? path.join(__dirname, 'icon.ico') : path.join(__dirname, 'icon.png'),
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
@@ -31,20 +32,20 @@ let lastPastedText = '';
       }
     })
 
-    win.on('resize', saveWindowBounds)
-    win.on('move', saveWindowBounds)
+    win.on('resize', saveWindowBounds);
+    win.on('move', saveWindowBounds);
 
     win.on('close', () => {
       app.quit()
-    })
+    });
 
     if (process.env.NODE_ENV === 'development') {
-      win.loadURL('http://localhost:5173')
+      win.loadURL('http://localhost:5173');
       win.webContents.once('did-finish-load', () => {
-        win.webContents.openDevTools()
+        win.webContents.openDevTools();
       })
     } else {
-      win.loadFile(path.join(__dirname, 'dist/index.html'))
+      win.loadFile(path.join(__dirname, 'dist/index.html'));
     }
   }
 
@@ -142,7 +143,6 @@ let lastPastedText = '';
     stopClipboardWatcher = true;
   }
 
-
   app.whenReady().then(() => {
     // console.log(store.store)
     // store.clear();
@@ -233,41 +233,50 @@ let lastPastedText = '';
       if (err) return console.error('无法唤醒应用', err);
 
       // 延时确保应用前台
-      setTimeout(() => {
+      // setTimeout(() => {
         let sendKey = 'key code 36'; // 默认回车
         if (appName === 'QQ') sendKey = 'keystroke return'; // QQ 特殊处理
 
-        const lines = [
-          'tell application "System Events"',
-          `tell process "${appName}"`,
-          'set frontmost to true',
-          'log "延时0.5"',
-          'delay 0.5',
-          'log "开始清空内容"',
-          'key code 51 using {command down}',      // 清空输入框
-          'set the clipboard to ""',               // 清空剪贴板
-          `delay 0.1`,
-          'log "写进剪切板"',
-          `set the clipboard to "${messageEscaped}"`,
-          'delay 0.2',
-          'log "粘贴"',
-          'keystroke "v" using {command down}',   // 粘贴消息
-          'delay 0.3',
-          sendKey,                                // 回车发送
-          'end tell',
-          'end tell'
-        ];
+        const appleScript = `
+            tell application "System Events"
+              tell process "${appName}"
+                set frontmost to true
+                delay 0.3
+            
+                -- 清空输入框
+                key code 51 using {command down}
+                set the clipboard to ""
+                delay 0.1
+            
+                -- 写入剪贴板
+                set the clipboard to "${messageEscaped}"
+                delay 0.2
+            
+                -- 粘贴
+                keystroke "v" using {command down}
+                delay 0.3
+            
+                -- 回车发送
+                ${sendKey}
+              end tell
+            end tell
+            `;
 
-        const appleScript = lines.map(line => `-e '${line}'`).join(' ');
-
-        exec(`osascript ${appleScript}`, (err2) => {
-          if (err2) console.error('发送失败', err2);
-          else console.log(`消息已发送给 ${messageEscaped} (${appName})`);
+        exec(`osascript -e '${appleScript}'`, (err, stdout, stderr) => {
+          if (err) {
+            console.error("发送失败", err, stderr);
+          } else {
+            console.log(`消息已发送给 ${messageEscaped} (${appName})`);
+          }
         });
-      }, 100);
+      // }, 100);
     });
   });
 
+  ipcMain.handle('set-always-on-top', (_e, flag) => {
+    if (win) win.setAlwaysOnTop(flag);
+    return flag;
+  });
 
   ipcMain.handle("get-phrases", () => {
     return store.get("phrases", []);
@@ -287,7 +296,6 @@ let lastPastedText = '';
       safeSend('phrases-updated', phrases);
     }
   });
-
 
   ipcMain.handle("get-enableClipboard", () => {
     return store.get("enableClipboard", true);
@@ -313,5 +321,23 @@ let lastPastedText = '';
   app.on('window-all-closed', () => {
     app.quit()
   });
+
+  /*// 禁止右键菜单中打开 DevTools
+  win.webContents.on('context-menu', (e) => {
+    e.preventDefault();
+  });
+
+  // 禁止 F12 / Cmd+Option+I 打开 DevTools
+  win.webContents.on('before-input-event', (event, input) => {
+    const forbidden =
+      (input.key === 'F12') ||
+      (input.control && input.shift && input.key.toLowerCase() === 'i') ||
+      (input.meta && input.alt && input.key.toLowerCase() === 'i');
+    if (forbidden) event.preventDefault();
+  });
+
+  // 打包后也不允许打开 DevTools
+  win.webContents.closeDevTools();
+  win.webContents.setDevToolsWebContents(null);*/
 
 })();

@@ -1,6 +1,6 @@
 <template>
   <div>
-<!--    <button @click="clearHistory">清空历史</button>-->
+    <!--    <button @click="clearHistory">清空历史</button>-->
     <ul class="history-list">
       <li v-for="item in filteredHistory" :key="item.text" class="history-item">
         <span class="text" :title="item.text">{{ item.text }}</span>
@@ -13,7 +13,7 @@
       </li>
     </ul>
 
-    <Dialog ref="dialogRef" />
+    <Dialog ref="dialogRef"/>
   </div>
 </template>
 
@@ -21,6 +21,7 @@
 import {computed, onMounted, ref} from "vue";
 import Message from "./Message/index.js";
 import Dialog from "./Dialog.vue";
+import sendMessageCommon from "./commonHandle.js";
 
 const {selectedApp} = defineProps({
   selectedApp: String
@@ -52,13 +53,11 @@ onMounted(async () => {
 
 // ✅ 使用 filteredHistory 来保证置顶排最前
 const filteredHistory = computed(() => {
-  return history.value
-      .filter(item => item.text.toLowerCase().includes(keyword.value.toLowerCase()))
-      .sort((a, b) => {
-        if (a.pinned && !b.pinned) return -1
-        if (!a.pinned && b.pinned) return 1
-        return 0
-      })
+  return history.value.filter(item => item.text.toLowerCase().includes(keyword.value.toLowerCase())).sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1
+    if (!a.pinned && b.pinned) return 1
+    return 0
+  })
 })
 
 
@@ -74,7 +73,7 @@ const pin = (item) => {
 
 const sendMessageMac = (message) => {
   console.log("selectedApp", selectedApp)
-  window.electronAPI.sendMsg({appName: selectedApp, message});
+  sendMessageCommon( selectedApp, message);
 }
 
 const deleteHistoryItem = (text) => {
@@ -99,6 +98,7 @@ const deleteHistoryItem = (text) => {
   flex: 1;
   overflow-y: auto;
   padding: 8px;
+
   .history-item {
     background-color: white;
     margin-bottom: 8px;
@@ -119,6 +119,7 @@ const deleteHistoryItem = (text) => {
       background-color: #3498db;
       color: white;
       transition: background-color 0.2s;
+
       &n:hover {
         background-color: #2980b9;
       }

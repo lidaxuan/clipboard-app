@@ -1,0 +1,35 @@
+//宽 高 行高
+
+@mixin wh() {
+    //宽度高度100%
+    @each $hSize in (height, width) {
+        [#{$hSize}="100%"] {
+            #{$hSize}: 100%;
+        }
+    }
+    @for $size from 1 through 700 {
+        @each $sizeKey in $size {
+            .w-#{$sizeKey} {
+                width: #{$sizeKey}px !important;
+            }
+            .min-w-#{$sizeKey} {
+                min-width: #{$sizeKey}px !important;
+            }
+            .max-w-#{$sizeKey} {
+                max-width: #{$sizeKey}px !important;
+            }
+            .h-#{$sizeKey} {
+                height: #{$sizeKey}px !important;
+            }
+            .min-h-#{$sizeKey} {
+                min-height: #{$sizeKey}px !important;
+            }
+            .max-h-#{$sizeKey} {
+                max-height: #{$sizeKey}px !important;
+            }
+            .lh-#{$sizeKey} {
+                line-height: #{$sizeKey}px !important;
+            }
+        }
+    }
+}

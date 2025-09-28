@@ -1,0 +1,59 @@
+/*
+ * @version: v1.2.0
+ * @Author: 范庆龙
+ * @Date: 2021-08-19 11:22:36
+ * @LastEditors: 范庆龙
+ * @LastEditTime: 2021-08-19 17:06:56
+ * @FilePath: \my-project\src\assets\base\reset\flex.scss
+ */
+@charset "utf-8";
+// 主轴是水平方向
+.flex{
+    display: flex;
+}
+// 主轴是竖直方向
+.flex-column{
+    flex-direction: column;
+}
+.flex-w{
+    flex-wrap: wrap;
+}
+// 伸缩值 .flex-比例，比如 flex-1, flex-2
+@mixin Flex-Number($num: 24) {
+    @for $i from 0 through $num {
+        .flex-#{$i} {
+            flex: #{$i};
+        }
+        .flex-grow-#{$i} {
+            flex-grow: #{$i};
+        }
+    }
+}
+$flex-jc:(
+        start: flex-start,
+        end: flex-end,
+        center:  center,
+        between: space-between,
+        around: space-around
+);
+// 主轴上面的元素排序方式
+@each $key, $value in $flex-jc{
+    .jc-#{$key} {
+        justify-content: $value
+    }
+}
+// 侧轴上面元素的排序方式
+$flex-ai:(
+        start: flex-start,
+        end: flex-end,
+        center: center,
+        stretch: stretch
+);
+
+@each $key, $value in $flex-ai{
+    .ai-#{$key} {
+        align-items: $value
+    }
+}
+
+@include Flex-Number();
