@@ -5,7 +5,7 @@
 .history
 /lib
 package-lock.json
-
+*.dmg
 # local env files
 .env.local
 .env.*.local
