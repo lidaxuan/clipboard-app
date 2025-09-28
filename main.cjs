@@ -241,12 +241,16 @@ let lastPastedText = '';
           'tell application "System Events"',
           `tell process "${appName}"`,
           'set frontmost to true',
+          'log "延时0.5"',
           'delay 0.5',
+          'log "开始清空内容"',
           'key code 51 using {command down}',      // 清空输入框
           'set the clipboard to ""',               // 清空剪贴板
           `delay 0.1`,
+          'log "写进剪切板"',
           `set the clipboard to "${messageEscaped}"`,
           'delay 0.2',
+          'log "粘贴"',
           'keystroke "v" using {command down}',   // 粘贴消息
           'delay 0.3',
           sendKey,                                // 回车发送

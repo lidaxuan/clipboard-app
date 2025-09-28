@@ -1,6 +1,6 @@
 {
   "name": "Textor-app",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "大玄开发的一款基于mac的话术盒子app",
   "main": "main.cjs",
   "productName": "话术盒子",

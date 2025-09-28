@@ -31,6 +31,20 @@
     </Tabs>
 
     <Dialog ref="dialogRef"/>
+
+    <div class="customer-service">
+      <div class="bg-box" v-show="isShow">
+        <div class="qr-item-box">
+          <img src="./assets/images/qq.jpg" width="214px" alt="QQ群">
+          <p class="desc">QQ群</p>
+        </div>
+      </div>
+
+      <div class="kf-img-box" @mouseenter="isShow = true" @mouseleave="isShow = false">
+        <img class="kf" src="./assets/images/kefu.png" alt="">
+      </div>
+
+    </div>
   </div>
 </template>
 
@@ -45,6 +59,7 @@ let selectedApp = ref('QQ')  // ✅ 定义这个响应式变量
 let activeTab = ref("clipboard");
 let tabKey = ref(Math.random());
 let enableClipboard = ref(true);
+let isShow = ref(false);
 const dialogRef = ref();
 
 const tabs = [
@@ -119,42 +134,42 @@ const tabsChange = (tab) => {
       align-items: center;
       gap: 16px;
     }
-  }
 
-  .send-box {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background-color: #fff;
-    padding: 4px 8px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-
-    label {
+    .send-box {
       display: flex;
       align-items: center;
-      font-size: 14px;
-      color: #555;
-      cursor: pointer;
+      gap: 12px;
+      background-color: #fff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
 
-      input[type="radio"] {
-        margin-right: 4px;
-        accent-color: #409eff;
+      label {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        color: #555;
+        cursor: pointer;
+
+        input[type="radio"] {
+          margin-right: 4px;
+          accent-color: #409eff;
+        }
       }
     }
-  }
 
-  .clear-btn {
-    background-color: #e74c3c;
-    border: none;
-    color: white;
-    padding: 4px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+    .clear-btn {
+      background-color: #e74c3c;
+      border: none;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
 
-    &:hover {
-      background-color: #c0392b;
+      &:hover {
+        background-color: #c0392b;
+      }
     }
   }
 
@@ -171,6 +186,52 @@ const tabsChange = (tab) => {
 
     &n:hover {
       background-color: #2980b9;
+    }
+  }
+
+  .customer-service {
+    position: fixed;
+    right: 5px;
+    bottom: 70px;
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    cursor: pointer;
+
+    .kf-img-box {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .05);
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .kf {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .bg-box {
+      padding: 10px;
+      -webkit-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .1);
+      border-radius: 4px;
+      background-color: #fff;
+      margin-right: 10px;
+
+      .qr-item-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        img {
+          margin-bottom: 5px;
+          box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .05);
+        }
+      }
     }
   }
 }
